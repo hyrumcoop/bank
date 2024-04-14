@@ -1,6 +1,7 @@
 from game import BankGame
 from mcts.mcts import compute_mcts_decision
 from player.player import BankPlayer
+from player.reasonable_player import ReasonablePlayer
 
 class MCTSPlayer(BankPlayer):
     '''A player that uses Monte Carlo Tree Search to make decisions.'''
@@ -11,4 +12,4 @@ class MCTSPlayer(BankPlayer):
         self.num_simulations = num_simulations
     
     def get_decision(self, game: BankGame, player: int) -> bool:
-        return compute_mcts_decision(game.get_current_state(), self.num_simulations)
+        return compute_mcts_decision(game.get_current_state(), self.num_simulations, rollout_player=ReasonablePlayer())

@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 import math
 import random
+from game import wrap_state
+from player.player import BankPlayer
+from player.random_player import RandomPlayer
 from state import BankState, next_state
 
 type MCTSPlayerDecision = tuple[int, bool] # Player number after decision, decision (bank is True, pass is False)
@@ -13,19 +16,19 @@ class MCTSNode:
     wins: float # float to account for draws, which are divided across the number of players who drew
     children: dict[MCTSPlayerDecision, 'MCTSNode']
 
-def compute_mcts_decision(state: BankState, num_simulations: int = 10) -> bool:
+def compute_mcts_decision(state: BankState, num_simulations: int = 10, rollout_player: BankPlayer = RandomPlayer()) -> bool:
     root = MCTSNode(parent=None, player=state.player, visits=0, wins=0, children={})
 
     # Run simulations
     for _ in range(num_simulations):
-        mcts_simulation(state, root)
+        mcts_simulation(state, root, rollout_player=rollout_player)
 
     # Choose node with max visits
     best_edge = max(root.children, key=lambda edge: root.children[edge].visits)
 
     return best_edge[1]
 
-def mcts_simulation(state: BankState, node: MCTSNode):
+def mcts_simulation(state: BankState, node: MCTSNode, *, rollout_player: BankPlayer):
     '''Performs a single simulation of Open Loop MCTS on the given state and tree.'''
 
     if len(node.children) == 0:
@@ -37,7 +40,7 @@ def mcts_simulation(state: BankState, node: MCTSNode):
 
         # Simulation
         n_state = next_state(state, edge[1])[0]
-        score = _rollout(n_state)
+        score = _rollout(n_state, player=rollout_player)
 
         # Backpropagation on child node
         node.children[edge].visits += 1
@@ -46,7 +49,7 @@ def mcts_simulation(state: BankState, node: MCTSNode):
         # Otherwise, call recursively on child with highest value
         edge = _choose_best_edge(state, node)
         n_state = next_state(state, edge[1])[0]
-        score = mcts_simulation(n_state, node.children[edge])
+        score = mcts_simulation(n_state, node.children[edge], rollout_player=rollout_player)
 
     # Backpropagation on current node
     node.visits += 1
@@ -116,10 +119,11 @@ def _get_reward(state: BankState) -> list[float]:
     
     return rewards
 
-def _rollout(state: BankState) -> list[float]:
+def _rollout(state: BankState, player: BankPlayer) -> list[float]:
     '''Performs a rollout simulation of the game from the given state.'''
 
     while not state.is_terminal():
-        state, _ = next_state(state, random.choice([True, False]))
+        decision = player.get_decision(wrap_state(state), state.player)
+        state, _ = next_state(state, decision)
 
     return _get_reward(state)
