@@ -1,5 +1,7 @@
 import random
 
+from event import BankEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
+
 class BankState:
     
     # Game-scope state
@@ -10,6 +12,7 @@ class BankState:
 
     # Round-scope state
     pot: int
+    rolls: int
     can_bank: list[bool]
     player: int
 
@@ -19,8 +22,12 @@ class BankState:
         self.cur_round = 0
         self.balances = [0] * num_players
         self.pot = 0
+        self.rolls = 0
         self.can_bank = [True] * num_players
         self.player = 0
+
+        # Begin game with first dice roll
+        self, dice_event = _next_dice_roll(self)
     
     def is_terminal(self) -> bool:
         return self.cur_round == self.total_rounds
@@ -30,38 +37,53 @@ class BankState:
         new_state.cur_round = self.cur_round
         new_state.balances = self.balances.copy()
         new_state.pot = self.pot
+        new_state.rolls = self.rolls
         new_state.can_bank = self.can_bank.copy()
         new_state.player = self.player
         return new_state
 
-def next_state(state: BankState, bank: bool) -> BankState:
-    if state.is_terminal():
-        return state
+def next_state(state: BankState, bank: bool) -> tuple[BankState, list[BankEvent]]:
+    events: list[BankEvent] = []
 
-    state = _execute_decision(state.copy(), bank)
+    if state.is_terminal():
+        return state, events
+
+    state = state.copy()
+    state = _execute_decision(state, bank)
     state = _rotate_decision(state)
 
     if state.player < state.num_players:
         # Players are still deciding
-        return state
+        return state, events
     
-    # All players have decided; time to re-roll dice
+    # All players have decided
     state.player = 0
-    dice = _roll_dice()
-    state.pot = _next_pot_amount(dice, state.pot, state.cur_round)
+    if any(state.can_bank):
+        # Some players can still bank; continue to next dice roll
+        state.player = 0
+        state, dice_event = _next_dice_roll(state)
+        events.append(dice_event)
 
-    if state.pot > 0:
-        # Players begin decision-making again
-        return state
+        if state.pot > 0:
+            # Players begin decision-making again
+            return state, events
     
     # Round is over; continue to next round
+    events.append(RoundCompleteEvent(state.cur_round))
     state.cur_round += 1
+    state.rolls = 0
+    state.pot = 0
     state.can_bank = [True] * state.num_players
-    
-    dice = _roll_dice()
-    state.pot = _next_pot_amount(dice, 0, state.cur_round)
 
-    return state
+    if state.cur_round == state.total_rounds:
+        # Game is over
+        events.append(GameCompleteEvent())
+        return state, events
+    
+    state, dice_event = _next_dice_roll(state)
+    events.append(dice_event)
+
+    return state, events
 
 def _execute_decision(state: BankState, bank: bool) -> BankState:
     if bank:
@@ -84,10 +106,10 @@ def _rotate_decision(state: BankState) -> BankState:
 def _roll_dice() -> tuple[int, int]:
     return random.randint(1, 6), random.randint(1, 6)
 
-def _next_pot_amount(dice: tuple[int, int], pot: int, round: int) -> int:
+def _next_pot_amount(dice: tuple[int, int], pot: int, rolls: int) -> int:
     dice1, dice2 = dice
 
-    if round < 3:
+    if rolls <= 3:
         if dice1 + dice2 == 7:
             return pot + 70
         else:
@@ -99,3 +121,10 @@ def _next_pot_amount(dice: tuple[int, int], pot: int, round: int) -> int:
             return 0
         else:
             return pot + dice1 + dice2
+
+def _next_dice_roll(state: BankState) -> tuple[BankState, DiceRollEvent]:
+    dice = _roll_dice()
+    state.rolls += 1
+    state.pot = _next_pot_amount(dice, state.pot, state.rolls)
+    event = DiceRollEvent(*dice, state.pot)
+    return state, event
