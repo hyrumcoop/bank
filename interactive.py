@@ -15,6 +15,11 @@ def _print_events(state, events):
             print(f'Player balances: {state.balances}\n')
         elif isinstance(event, GameCompleteEvent):
             print('Game is complete.')
+            leaders = state.get_leaders()
+            if len(leaders) == 1:
+                print(f'Player {leaders[0]+1} is the winner with {state.balances[leaders[0]]} dollars!')
+            else:
+                print(f'The game is a tie between players {", ".join(str(leader+1) for leader in leaders)}!')
 
 if __name__ == '__main__':
     players: list[BankPlayer] = [HumanPlayer(), RandomPlayer(), RandomPlayer()]

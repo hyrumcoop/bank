@@ -19,6 +19,7 @@ class BankState:
     Methods:
         __init__(self, num_players: int, total_rounds: int): Initializes a new BankState object.
         is_terminal(self) -> bool: Checks if the game has reached a terminal state.
+        get_leaders(self) -> list[int]: Gets the player(s) with the highest balance.
         copy(self): Creates a copy of the BankState object.
 
     '''
@@ -52,6 +53,12 @@ class BankState:
         '''
 
         return self.cur_round == self.total_rounds
+    
+    def get_leaders(self) -> list[int]:
+        '''Gets the player(s) with the highest balance.'''
+
+        max_balance = max(self.balances)
+        return [i for i, balance in enumerate(self.balances) if balance == max_balance]
 
     def copy(self):
         '''
