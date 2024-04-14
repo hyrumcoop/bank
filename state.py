@@ -3,20 +3,36 @@ import random
 from event import BankEvent, DecisionEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
 
 class BankState:
-    
-    # Game-scope state
-    num_players: int
-    total_rounds: int
-    cur_round: int
-    balances: list[int]
+    '''
+    Represents a single snapshot of a Bank game. Should be treated as immutable outside of this module.
 
-    # Round-scope state
-    pot: int
-    rolls: int
-    can_bank: list[bool]
-    player: int
+    Attributes:
+        num_players (int): The number of players in the game.
+        total_rounds (int): The total number of rounds in the game.
+        cur_round (int): The current round of the game.
+        balances (list[int]): The balances of each player.
+        pot (int): The amount of money in the pot.
+        rolls (int): The number of rolls made in the current round.
+        can_bank (list[bool]): A list indicating whether each player can bank.
+        player (int): The current player.
+
+    Methods:
+        __init__(self, num_players: int, total_rounds: int): Initializes a new BankState object.
+        is_terminal(self) -> bool: Checks if the game has reached a terminal state.
+        copy(self): Creates a copy of the BankState object.
+
+    '''
 
     def __init__(self, num_players: int, total_rounds: int):
+        '''
+        Initializes a new BankState object.
+
+        Args:
+            num_players (int): The number of players in the game.
+            total_rounds (int): The total number of rounds in the game.
+
+        '''
+        
         self.num_players = num_players
         self.total_rounds = total_rounds
         self.cur_round = 0
@@ -27,9 +43,25 @@ class BankState:
         self.player = 0
     
     def is_terminal(self) -> bool:
+        '''
+        Checks if the game has reached a terminal state.
+
+        Returns:
+            bool: True if the game is in a terminal state, False otherwise.
+
+        '''
+
         return self.cur_round == self.total_rounds
 
     def copy(self):
+        '''
+        Creates a copy of the BankState object.
+
+        Returns:
+            BankState: A new BankState object with the same attribute values as the original.
+
+        '''
+
         new_state = BankState(self.num_players, self.total_rounds)
         new_state.cur_round = self.cur_round
         new_state.balances = self.balances.copy()
@@ -40,6 +72,19 @@ class BankState:
         return new_state
 
 def next_state(state: BankState, bank: bool) -> tuple[BankState, list[BankEvent]]:
+    '''
+    Computes the next state of the game based on the current player's decision. The original state is not modified. A
+    list of events is returned to indicate what occurred during the transition, such as dice rolls, player decisions,
+    and round completions.
+
+    Args:
+        state (BankState): The current state of the bank game.
+        bank (bool): The decision of the current player to bank or not.
+
+    Returns:
+        tuple[BankState, list[BankEvent]]: A tuple containing the next state of the bank game and a list of events that occurred during the transition.
+    '''
+
     events: list[BankEvent] = []
 
     if state.is_terminal():

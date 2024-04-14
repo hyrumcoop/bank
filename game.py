@@ -2,6 +2,20 @@ from state import BankState, _next_dice_roll, next_state
 from event import BankEvent
 
 class BankGame:
+    '''
+    Represents an entire game of Bank, including a state history. Individual game states are immutable,
+    but the game object itself is mutable and can be used to progress through the game.
+
+    Attributes:
+        state_history (list[BankState]): A list of all game states.
+        decision_history (list[bool]): A list of all decisions made by the players.
+        event_history (list[list[BankEvent]]): A list of all events that have occurred in the game.
+    
+    Methods:
+        get_current_state: Returns the current state of the game.
+        decide: Progresses the game by executing the current player's decision to bank or not.
+    '''
+
     state_history: list[BankState]
     decision_history: list[bool]
     event_history: list[list[BankEvent]]
@@ -20,6 +34,8 @@ class BankGame:
         return self.state_history[-1]
     
     def decide(self, bank: bool) -> tuple[BankState, list[BankEvent]]:
+        '''Progresses the game by executing the current player's decision to bank or not. Returns the new state and events.'''
+
         state = self.get_current_state()
         new_state, events = next_state(state, bank)
 
