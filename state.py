@@ -1,6 +1,6 @@
 import random
 
-from event import BankEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
+from event import BankEvent, DecisionEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
 
 class BankState:
     
@@ -46,7 +46,8 @@ def next_state(state: BankState, bank: bool) -> tuple[BankState, list[BankEvent]
         return state, events
 
     state = state.copy()
-    state = _execute_decision(state, bank)
+    state, decision_event = _execute_decision(state, bank)
+    events.append(decision_event)
     state = _rotate_decision(state)
 
     if state.player < state.num_players:
@@ -83,16 +84,20 @@ def next_state(state: BankState, bank: bool) -> tuple[BankState, list[BankEvent]
 
     return state, events
 
-def _execute_decision(state: BankState, bank: bool) -> BankState:
+def _execute_decision(state: BankState, bank: bool) -> tuple[BankState, DecisionEvent]:
+    player = state.player
+
     if bank:
-        state.balances[state.player] += state.pot
-        state.can_bank[state.player] = False
+        state.balances[player] += state.pot
+        state.can_bank[player] = False
 
         state.player = 0 # Reset decision to first player
     else:
         state.player += 1 # Let next player decide
+
+    event = DecisionEvent(player, bank, state.balances[player])
     
-    return state
+    return state, event
 
 def _rotate_decision(state: BankState) -> BankState:
     # Find next player that can make decision

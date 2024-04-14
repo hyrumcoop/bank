@@ -1,34 +1,15 @@
-from event import DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
-from game import BankGame
+from event import DecisionEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
+from simulation import play_game
 from player import BankPlayer, RandomPlayer, HumanPlayer
-
-def play_game(players: list[BankPlayer], total_rounds=10):
-    num_players = len(players)
-    game = BankGame(num_players, total_rounds)
-    state = game.get_current_state()
-
-    print(f'Beginning Bank with {num_players} players and {total_rounds} rounds.\n')
-
-    _print_events(state, game.event_history[0])
-    
-    while not state.is_terminal():
-        player = state.player
-        bank = players[state.player].get_decision(game, state.player)
-        state, events = game.decide(bank)
-
-        if bank:
-            print(f'\t\tPlayer {player+1} decided to bank.')
-            print(f'\t\tPlayer {player+1} now has {state.balances[player]} dollars.\n')
-
-        _print_events(state, events)
-    
-    return game
 
 def _print_events(state, events):
     for event in events:
         if isinstance(event, DiceRollEvent):
-            print(f'\tA {event.first} and a {event.second} were rolled.')
+            print(f'\tA {event.first} and a {event.second} were rolled, giving a total of {event.first + event.second}.')
             print(f'\tThere are now {event.pot} dollars in the pot.\n')
+        elif isinstance(event, DecisionEvent) and event.bank:
+            print(f'\t\tPlayer {event.player+1} decided to bank.')
+            print(f'\t\tPlayer {event.player+1} now has {event.balance} dollars.\n')
         elif isinstance(event, RoundCompleteEvent):
             print(f'Round {event.round_number+1} is complete.')
             print(f'Player balances: {state.balances}\n')
@@ -36,5 +17,8 @@ def _print_events(state, events):
             print('Game is complete.')
 
 if __name__ == '__main__':
-    players = [HumanPlayer(), RandomPlayer(), RandomPlayer()]
-    play_game(players, total_rounds=3)
+    players: list[BankPlayer] = [HumanPlayer(), RandomPlayer(), RandomPlayer()]
+    total_rounds = 3
+
+    print(f'Beginning Bank with {len(players)} players and {total_rounds} rounds.\n')
+    play_game(players, total_rounds=total_rounds, event_hook=_print_events)

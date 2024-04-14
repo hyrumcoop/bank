@@ -1,4 +1,4 @@
-from bank import BankState, _next_dice_roll, next_state
+from state import BankState, _next_dice_roll, next_state
 from event import BankEvent
 
 class BankGame:
