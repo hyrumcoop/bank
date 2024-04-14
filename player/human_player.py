@@ -8,10 +8,9 @@ class HumanPlayer(BankPlayer):
 
     def get_decision(self, game: BankGame, player: int) -> bool:
         while True:
-            decision = input(f'Player {player}, do you want to bank? (y/n) ').strip().lower()
-            if decision == 'y':
-                return True
-            elif decision == 'n':
-                return False
+            decision = input(f'\t\tPlayer {player+1}, do you want to bank? (y/n) ').strip().lower()
+            if decision in ['y', 'n']:
+                print()
+                return decision == 'y'
             else:
-                print('Invalid input. Please enter "y" or "n".')
+                print('\t\tInvalid input. Please enter "y" or "n".')

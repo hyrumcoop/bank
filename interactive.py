@@ -9,7 +9,9 @@ def play_game(players: list[BankPlayer], total_rounds=10):
     game = BankGame(num_players, total_rounds)
     state = game.get_current_state()
 
-    print(f'The pot starts at {game.get_current_state().pot}\n')
+    print(f'Beginning Bank with {num_players} players and {total_rounds} rounds.\n')
+
+    _print_events(state, game.event_history[0])
     
     while not state.is_terminal():
         player = state.player
@@ -17,22 +19,23 @@ def play_game(players: list[BankPlayer], total_rounds=10):
         state, events = game.decide(bank)
 
         if bank:
-            print(f'Player {player} decided to bank')
-            print(f'Player {player} now has {state.balances[player]} dollars\n')
+            print(f'\t\tPlayer {player+1} decided to bank.')
+            print(f'\t\tPlayer {player+1} now has {state.balances[player]} dollars.\n')
 
-        _print_events(events)
+        _print_events(state, events)
     
     return game
 
-def _print_events(events):
+def _print_events(state, events):
     for event in events:
         if isinstance(event, DiceRollEvent):
-            print(f'\nA {event.first} and a {event.second} were rolled')
-            print(f'The pot is now {event.pot}\n')
+            print(f'\tA {event.first} and a {event.second} were rolled.')
+            print(f'\tThere are now {event.pot} dollars in the pot.\n')
         elif isinstance(event, RoundCompleteEvent):
-            print(f'Round {event.round_number} is complete\n')
+            print(f'Round {event.round_number+1} is complete.')
+            print(f'Player balances: {state.balances}\n')
         elif isinstance(event, GameCompleteEvent):
-            print('Game is complete')
+            print('Game is complete.')
 
 if __name__ == '__main__':
     players = [HumanPlayer(), RandomPlayer(), RandomPlayer()]

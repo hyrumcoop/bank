@@ -1,4 +1,4 @@
-from bank import BankState, next_state
+from bank import BankState, _next_dice_roll, next_state
 from event import BankEvent
 
 class BankGame:
@@ -7,9 +7,14 @@ class BankGame:
     event_history: list[list[BankEvent]]
     
     def __init__(self, num_players: int, total_rounds: int):
-        self.state_history = [BankState(num_players, total_rounds)]
+        state = BankState(num_players, total_rounds)
+        
+        # Begin game with first dice roll
+        state, dice_event = _next_dice_roll(state)
+
+        self.state_history = [state]
         self.decision_history = []
-        self.event_history = []
+        self.event_history = [[dice_event]]
     
     def get_current_state(self) -> BankState:
         return self.state_history[-1]

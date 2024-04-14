@@ -25,9 +25,6 @@ class BankState:
         self.rolls = 0
         self.can_bank = [True] * num_players
         self.player = 0
-
-        # Begin game with first dice roll
-        self, dice_event = _next_dice_roll(self)
     
     def is_terminal(self) -> bool:
         return self.cur_round == self.total_rounds
@@ -57,23 +54,24 @@ def next_state(state: BankState, bank: bool) -> tuple[BankState, list[BankEvent]
         return state, events
     
     # All players have decided
-    state.player = 0
+
     if any(state.can_bank):
         # Some players can still bank; continue to next dice roll
-        state.player = 0
+        
         state, dice_event = _next_dice_roll(state)
         events.append(dice_event)
 
         if state.pot > 0:
-            # Players begin decision-making again
+            # Players begin decision-making again; begin with first player that can bank
+
+            state.player = 0
+            state = _rotate_decision(state) # Get first player that can bank
+
             return state, events
     
     # Round is over; continue to next round
-    events.append(RoundCompleteEvent(state.cur_round))
-    state.cur_round += 1
-    state.rolls = 0
-    state.pot = 0
-    state.can_bank = [True] * state.num_players
+    state, round_event = _next_round(state)
+    events.append(round_event)
 
     if state.cur_round == state.total_rounds:
         # Game is over
@@ -126,5 +124,18 @@ def _next_dice_roll(state: BankState) -> tuple[BankState, DiceRollEvent]:
     dice = _roll_dice()
     state.rolls += 1
     state.pot = _next_pot_amount(dice, state.pot, state.rolls)
+
     event = DiceRollEvent(*dice, state.pot)
+
+    return state, event
+
+def _next_round(state: BankState) -> tuple[BankState, RoundCompleteEvent]:
+    event = RoundCompleteEvent(state.cur_round)
+
+    state.cur_round += 1
+    state.rolls = 0
+    state.pot = 0
+    state.can_bank = [True] * state.num_players
+    state.player = 0
+
     return state, event
