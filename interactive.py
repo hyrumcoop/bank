@@ -1,8 +1,6 @@
 from event import DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
 from game import BankGame
-from player.human_player import HumanPlayer
-from player.player import BankPlayer
-from player.random_player import RandomPlayer
+from player import BankPlayer, RandomPlayer, HumanPlayer
 
 def play_game(players: list[BankPlayer], total_rounds=10):
     num_players = len(players)
