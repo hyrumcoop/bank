@@ -1,6 +1,6 @@
 from event import DecisionEvent, DiceRollEvent, GameCompleteEvent, RoundCompleteEvent
 from simulation import play_game
-from player import BankPlayer, RandomPlayer, HumanPlayer
+from player import BankPlayer, RandomPlayer, HumanPlayer, MCTSPlayer
 
 def _print_events(state, events):
     for event in events:
@@ -22,7 +22,7 @@ def _print_events(state, events):
                 print(f'The game is a tie between players {", ".join(str(leader+1) for leader in leaders)}!')
 
 if __name__ == '__main__':
-    players: list[BankPlayer] = [HumanPlayer(), RandomPlayer(), RandomPlayer()]
+    players: list[BankPlayer] = [HumanPlayer(), MCTSPlayer(num_simulations=5000), RandomPlayer()]
     total_rounds = 3
 
     print(f'Beginning Bank with {len(players)} players and {total_rounds} rounds.\n')
