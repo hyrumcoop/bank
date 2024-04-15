@@ -32,23 +32,24 @@ def mcts_simulation(state: BankState, node: MCTSNode, *, rollout_player: BankPla
     '''Performs a single simulation of Open Loop MCTS on the given state and tree.'''
 
     if len(node.children) == 0:
-        # Expansion
-        _expand_node(node, state)
-        
-        # Choose a random child to simulate
-        edge = _choose_random_edge(state)
+        if state.is_terminal():
+            score = _get_reward(state)
+        else:
+            # Expansion
+            _expand_node(node, state)
+            
+            # Choose a random child to simulate
+            edge, n_state = _choose_random_edge(state)
 
-        # Simulation
-        n_state = next_state(state, edge[1])[0]
-        score = _rollout(n_state, player=rollout_player)
+            # Simulation
+            score = _rollout(n_state, player=rollout_player)
 
-        # Backpropagation on child node
-        node.children[edge].visits += 1
-        node.children[edge].wins += score[node.player]
+            # Backpropagation on child node
+            node.children[edge].visits += 1
+            node.children[edge].wins += score[edge[0]]
     else:
         # Otherwise, call recursively on child with highest value
-        edge = _choose_best_edge(state, node)
-        n_state = next_state(state, edge[1])[0]
+        edge, n_state = _choose_best_edge(state, node)
         score = mcts_simulation(n_state, node.children[edge], rollout_player=rollout_player)
 
     # Backpropagation on current node
@@ -73,23 +74,26 @@ def _get_next_players(state: BankState) -> tuple[int, int]:
 
     return (pass_next_player, bank_next_player)
 
-def _choose_random_edge(state: BankState) -> MCTSPlayerDecision:
+def _choose_random_edge(state: BankState) -> tuple[MCTSPlayerDecision, BankState]:
     '''Chooses a random MCTS tree edge from the given state.'''
 
-    pass_next_player, bank_next_player = _get_next_players(state)
+    pass_state, bank_state = next_state(state, False)[0], next_state(state, True)[0]
+    pass_edge, bank_edge = (pass_state.player, False), (bank_state.player, True)
 
-    return random.choice([(pass_next_player, False), (bank_next_player, True)])
+    return random.choice([(pass_edge, pass_state), (bank_edge, bank_state)])
 
-def _choose_best_edge(state: BankState, node: MCTSNode) -> MCTSPlayerDecision:
+def _choose_best_edge(state: BankState, node: MCTSNode) -> tuple[MCTSPlayerDecision, BankState]:
     '''Chooses the best MCTS tree edge from the given state and node.'''
 
-    pass_next_player, bank_next_player = _get_next_players(state)
-    pass_score, bank_score = uct(node.children[(pass_next_player, False)]), uct(node.children[(bank_next_player, True)])
+    pass_state, bank_state = next_state(state, False)[0], next_state(state, True)[0]
+    pass_edge, bank_edge = (pass_state.player, False), (bank_state.player, True)
+
+    pass_score, bank_score = uct(node.children[pass_edge]), uct(node.children[bank_edge])
 
     if pass_score > bank_score:
-        return (pass_next_player, False)
+        return pass_edge, pass_state
     else:
-        return (bank_next_player, True)
+        return bank_edge, bank_state
 
 def uct(node: MCTSNode, c: float = math.sqrt(2)) -> float:
     '''Computes the UCT value of the given node.'''

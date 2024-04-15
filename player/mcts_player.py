@@ -12,4 +12,7 @@ class MCTSPlayer(BankPlayer):
         self.num_simulations = num_simulations
     
     def get_decision(self, game: BankGame, player: int) -> bool:
+        if game.get_current_state().rolls < 3:
+            return False # No risk in passing after the first two rolls
+
         return compute_mcts_decision(game.get_current_state(), self.num_simulations, rollout_player=ReasonablePlayer())
