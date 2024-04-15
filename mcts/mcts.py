@@ -65,15 +65,6 @@ def _expand_node(node: MCTSNode, state: BankState):
         node.children[(player, True)] = MCTSNode(parent=node, player=player, visits=0, wins=0, children={})
         node.children[(player, False)] = MCTSNode(parent=node, player=player, visits=0, wins=0, children={})
 
-def _get_next_players(state: BankState) -> tuple[int, int]:
-    '''Gets the player that will make the next decision in the given state. Returns
-    a tuple of the player number after passing, and the player number after banking.'''
-
-    pass_next_player = next_state(state, False)[0].player
-    bank_next_player = next_state(state, True)[0].player
-
-    return (pass_next_player, bank_next_player)
-
 def _choose_random_edge(state: BankState) -> tuple[MCTSPlayerDecision, BankState]:
     '''Chooses a random MCTS tree edge from the given state.'''
 
