@@ -41,10 +41,12 @@ class BankGame:
         for event_set in reversed(self.event_history):
             for event in reversed(event_set):
                 if type(event) is RoundCompleteEvent:
-                    return reversed(dice_rolls)
+                    dice_rolls.reverse()
+                    return dice_rolls
                 if type(event) is DiceRollEvent:
                     dice_rolls.append(event)
-        return reversed(dice_rolls)
+        dice_rolls.reverse()
+        return dice_rolls
     
     def decide(self, bank: bool) -> tuple[BankState, list[BankEvent]]:
         '''Progresses the game by executing the current player's decision to bank or not. Returns the new state and events.'''
