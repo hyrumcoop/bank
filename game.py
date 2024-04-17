@@ -1,5 +1,5 @@
 from state import BankState, _next_dice_roll, next_state
-from event import BankEvent
+from event import BankEvent, DiceRollEvent, RoundCompleteEvent
 
 class BankGame:
     '''
@@ -32,6 +32,19 @@ class BankGame:
     
     def get_current_state(self) -> BankState:
         return self.state_history[-1]
+
+    def get_event_history(self) -> list[list[BankEvent]]:
+        return self.event_history
+    
+    def get_dice_roll_events_for_current_round(self) -> list[DiceRollEvent]:
+        dice_rolls: list[DiceRollEvent] = []
+        for event_set in reversed(self.event_history):
+            for event in reversed(event_set):
+                if type(event) is RoundCompleteEvent:
+                    return reversed(dice_rolls)
+                if type(event) is DiceRollEvent:
+                    dice_rolls.append(event)
+        return reversed(dice_rolls)
     
     def decide(self, bank: bool) -> tuple[BankState, list[BankEvent]]:
         '''Progresses the game by executing the current player's decision to bank or not. Returns the new state and events.'''
