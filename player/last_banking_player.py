@@ -20,6 +20,12 @@ class LastBankingPlayer(BankPlayer):
 
         if count > 1:
             return False
+
+        last_dice_roll = game.get_dice_roll_events_for_current_round()[-1]
+        if last_dice_roll.first == last_dice_roll.second:
+            # Bank as soon as one more doubles is rolled
+            return True
+
+        return False
         
-        return True
         
