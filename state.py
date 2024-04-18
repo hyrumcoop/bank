@@ -13,6 +13,7 @@ class BankState:
         balances (list[int]): The balances of each player.
         pot (int): The amount of money in the pot.
         rolls (int): The number of rolls made in the current round.
+        doubles (int): The number of doubles rolled in the current round.
         can_bank (list[bool]): A list indicating whether each player can bank.
         player (int): The current player.
 
@@ -40,6 +41,7 @@ class BankState:
         self.balances = [0] * num_players
         self.pot = 0
         self.rolls = 0
+        self.doubles = 0
         self.can_bank = [True] * num_players
         self.player = 0
     
@@ -74,6 +76,7 @@ class BankState:
         new_state.balances = self.balances.copy()
         new_state.pot = self.pot
         new_state.rolls = self.rolls
+        new_state.doubles = self.doubles
         new_state.can_bank = self.can_bank.copy()
         new_state.player = self.player
         return new_state
@@ -180,6 +183,8 @@ def _next_pot_amount(dice: tuple[int, int], pot: int, rolls: int) -> int:
 def _next_dice_roll(state: BankState) -> tuple[BankState, DiceRollEvent]:
     dice = _roll_dice()
     state.rolls += 1
+    if dice[0] == dice[1] and state.rolls > 3:
+        state.doubles += 1
     state.pot = _next_pot_amount(dice, state.pot, state.rolls)
 
     event = DiceRollEvent(*dice, state.pot)
