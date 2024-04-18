@@ -1,20 +1,21 @@
 from game import BankGame
 from player.player import BankPlayer
 
-class LastBankingPlayer(BankPlayer):
+class AdversarialLeader(BankPlayer):
     '''
-    A player that only banks after every single other player has banked and waits for one
-    more double to be rolled
+    A more complex player. If the player is in first, they will always bank only when the
+    second place player banks. If the player is not in first, then they bank either when the pot
+    passes the score of the first player, or when the pot moves past n points
     '''
 
     def __init__(self):
         pass
 
     def get_decision(self, game: BankGame, player: int) -> bool:
-        count = 0
+        '''
         state = game.get_current_state()
         eventHistory = game.get_event_history()
-        for bankable in state.can_bank:
+        for bankable in state:
             if bankable:
                 count += 1
 
@@ -27,5 +28,5 @@ class LastBankingPlayer(BankPlayer):
             return True
 
         return False
-
-
+        '''
+        return True

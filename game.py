@@ -35,6 +35,9 @@ class BankGame:
 
     def get_event_history(self) -> list[list[BankEvent]]:
         return self.event_history
+
+    def get_current_leader_id(self) -> int:
+        return max(range(len(self.state_history[-1].balances), key=lambda i: self.state_history[-1].balances[i]))
     
     def get_dice_roll_events_for_current_round(self) -> list[DiceRollEvent]:
         dice_rolls: list[DiceRollEvent] = []
