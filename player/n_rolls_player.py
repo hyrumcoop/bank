@@ -12,7 +12,7 @@ class NRollsPlayer(BankPlayer):
     
     def get_decision(self, game: BankGame, player: int) -> bool:
         rolls = game.get_dice_roll_events_for_current_round()
-        if len(rolls >= self.rolls_threshold):
+        if len(rolls) >= self.rolls_threshold:
             return True
 
         return False
