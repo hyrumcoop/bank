@@ -14,3 +14,4 @@ class RandomPlayer(BankPlayer):
     
     def get_decision(self, game: BankGame, player: int) -> bool:
         return random.random() < self.p
+
