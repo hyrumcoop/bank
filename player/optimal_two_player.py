@@ -9,27 +9,33 @@ class OpTwoPlayer(BankPlayer):
     '''
 
     def __init__(self):
-        pass
+        self.otherPlayerBanked = False
+        self.rollNumberOtherPlayerBanked = 0
+        self.diceRollNumber = 0
 
     def get_decision(self, game: BankGame, player: int) -> bool:
 
+        self.diceRollNumber += 1
+
         # If player is in the lead, copy second place's move
         if player.int == game.get_current_leader_id:
-            return secondplace
+            second = state.get_placements()[1]
+            return not state.can_bank[second]
         
-        unbanked = 0
+        # Otherwise, bank one roll after the first other player banks
+        elif self.otherPlayerBanked and self.diceRollNumber > self.rollNumberOtherPlayerBanked:
+            self.otherPlayerBanked = False
+            return True
+        
+        # Take note of when other players are banking
+        unbanked_players = 0
         state = game.get_current_state()
         for bankable in state.can_bank:
             if bankable:
-                unbanked += 1
+                unbanked_players += 1
 
-        # Otherwise, bank one roll after the first other player banks
-        if unbanked < state.num_players():
-            return True
-
-        last_dice_roll = game.get_dice_roll_events_for_current_round()[-1]
-        if last_dice_roll.first == last_dice_roll.second:
-            # Bank as soon as one more doubles is rolled
-            return True
+        if unbanked_players < state.num_players():
+            self.otherPlayerBanked = True
+            self.rollNumberOtherPlayerBanked = self.diceRollNumber
 
         return False
