@@ -13,5 +13,8 @@ class RandomPlayer(BankPlayer):
         self.p = p
     
     def get_decision(self, game: BankGame, player: int) -> bool:
+        rolls = game.get_dice_roll_events_for_current_round()
+        if len(rolls) <= 3:
+            return False
         return random.random() < self.p
 
