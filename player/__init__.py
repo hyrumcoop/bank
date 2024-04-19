@@ -7,3 +7,4 @@ from .n_doubles_player import NDoublesPlayer
 from .n_pot_player import NPotPlayer
 from .n_rolls_player import NRollsPlayer
 from .optimal_two_player import OpTwoPlayer
+from .n_players_player import NPlayersPlayer

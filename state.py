@@ -62,6 +62,17 @@ class BankState:
         max_balance = max(self.balances)
         return [i for i, balance in enumerate(self.balances) if balance == max_balance]
 
+    # first place is the player with the id at index 0, 2nd place at index 1, and so on
+    def get_placements(self) -> list[int]:
+        placements = []
+        for balance in sorted(self.balances): # [1000 (3), 900 (1), 800 (2), 700 (0)]
+            thing = self.balances.index(balance)
+            while thing in placements:
+                thing = self.balances.index(balance, thing + 1)
+            placements.append(thing)
+
+        return placements
+
     def copy(self):
         '''
         Creates a copy of the BankState object.
