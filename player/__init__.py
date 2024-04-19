@@ -6,3 +6,4 @@ from .last_banking_player import LastBankingPlayer
 from .n_doubles_player import NDoublesPlayer
 from .n_pot_player import NPotPlayer
 from .n_rolls_player import NRollsPlayer
+from .n_players_player import NPlayersPlayer
