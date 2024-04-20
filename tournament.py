@@ -2,9 +2,8 @@ import csv
 import pprint
 from math import floor
 from random import shuffle
-from game import BankGame
 from typing import TypedDict
-from player import BankPlayer, NPlayersPlayer, AdversarialLeader, LastBankingPlayer, NDoublesPlayer, NPotPlayer, NRollsPlayer, RandomPlayer
+from player import BankPlayer, OpTwoPlayer, NPlayersPlayer, AdversarialLeader, LastBankingPlayer, NDoublesPlayer, NPotPlayer, NRollsPlayer, RandomPlayer
 from simulation import play_game
 
 class PlayerStats(TypedDict):
@@ -23,6 +22,7 @@ def run_tournament(games: int, table_size: int, rounds_per_game: int = 10) -> li
     players: list[PlayerStats] = []
 
     emptyWinsVs: dict[type, int] = {
+        'OpTwoPlayer': 0,
         'LastBankingPlayer': 0,
         '3DoublesPlayer': 0,
         '7DoublesPlayer': 0,
@@ -41,57 +41,81 @@ def run_tournament(games: int, table_size: int, rounds_per_game: int = 10) -> li
         emptyPlacements[i + 1] = 0
 
     absolutePlacement = {
+        'OpTwoPlayer': {
+            'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
+            'placements': emptyPlacements.copy()
+        },
         'LastBankingPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '200PotPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '1000PotPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '7RollsPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '14RollsPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '1/3RandomPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '1/6RandomPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '1/12RandomPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '3DoublesPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '7DoublesPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         'AdversarialLeader': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         },
         '1/2PlayersPlayer': {
             'winsVs': emptyWinsVs.copy(),
+            'games_played': 0,
             'placements': emptyPlacements.copy()
         }
     }
 
     for i in range(table_size):
+        players.append({
+            'player': LastBankingPlayer(),
+            'winsVs': emptyWinsVs.copy(),
+            'scores': [],
+            'name': 'OpTwoPlayer',
+            'placements': emptyPlacements.copy()
+        })
         players.append({
             'player': LastBankingPlayer(),
             'winsVs': emptyWinsVs.copy(),
@@ -220,6 +244,7 @@ def run_tournament(games: int, table_size: int, rounds_per_game: int = 10) -> li
 
                 table[player_index]['placements'][placement] += 1
                 absolutePlacement[table[player_index]['name']]['placements'][placement] += 1
+                absolutePlacement[table[player_index]['name']]['games_played'] += 1
 
     pprint.pprint(absolutePlacement)
     return absolutePlacement
@@ -231,6 +256,7 @@ if __name__ == '__main__':
             'playerName', 
             'roundsPerGame', 
             'playersPerTable', 
+            'winsVOpTwoPlayer',
             'winsV1/2PlayersPlayer',
             'winsV1/12RandomPlayer',
             'winsV1/3RandomPlayer',
@@ -251,7 +277,8 @@ if __name__ == '__main__':
             'placementIn6',
             'placementIn7',
             'placementIn8',
-            'placementIn9'
+            'placementIn9',
+            'games_played'
         ]
 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -267,6 +294,7 @@ if __name__ == '__main__':
                 json = jsonStart.copy()
 
                 json['playerName'] = key
+                json['games_played'] = value['games_played']
                 for player, winsV in value['winsVs'].items():
                     json['winsV' + player] = winsV
 
@@ -299,5 +327,4 @@ if __name__ == '__main__':
         addStatsToCSV(run_tournament(1000, 7, 20), 7, 20)
         addStatsToCSV(run_tournament(1000, 8, 20), 8, 20)
         addStatsToCSV(run_tournament(1000, 9, 20), 9, 20)
-
 
