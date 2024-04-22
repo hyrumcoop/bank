@@ -8,3 +8,5 @@ from .n_rolls_player import NRollsPlayer
 from .optimal_two_player import OpTwoPlayer
 from .player import BankPlayer
 from .random_player import RandomPlayer
+from .mcts_player import MCTSPlayer
+from .reasonable_player import ReasonablePlayer

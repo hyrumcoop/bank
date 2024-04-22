@@ -62,3 +62,11 @@ class BankGame:
         self.event_history.append(events)
 
         return new_state, events
+
+def wrap_state(state: BankState) -> BankGame:
+    '''Wraps the given state in a BankGame object.'''
+
+    game = BankGame(state.num_players, state.total_rounds)
+    game.state_history = [state]
+
+    return game
