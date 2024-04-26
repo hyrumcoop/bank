@@ -1,5 +1,11 @@
 # Bank
 
+## Usage
+
+### MCTS
+
+Run `mcts_test.py` to run the Monte-Carlo Tree Search algorithm against 7 other players in 1000 different games. The win/draw rates are reported in the console for each player.
+
 ## Bank API Overview
 
 This repo implements the Bank game logic as the foundation for the tournament ranking algorithm and Monte-Carlo tree search algorithm.
