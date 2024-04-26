@@ -6,6 +6,10 @@
 
 Run `mcts_test.py` to run the Monte-Carlo Tree Search algorithm against 7 other players in 1000 different games. The win/draw rates are reported in the console for each player.
 
+### Interactive Play
+
+Running `python interactive.py` sets up an interactive game for a `HumanPlayer` against a few computer strategies.
+
 ## Bank API Overview
 
 This repo implements the Bank game logic as the foundation for the tournament ranking algorithm and Monte-Carlo tree search algorithm.
@@ -19,8 +23,4 @@ To simplify the player decision logic and Monte-Carlo tree search algorithm, the
 - `RandomPlayer`: Another implementation of `BankPlayer`. A basic strategy that randomly decides to bank with probability `p` regardless of the current game state, which is set in the constructor. Defaults to `p=0.25`.
 - `next_state`: Returns the next state using the decision from the current player.
 - `play_game`: Accepts a list of `BankPlayer`s, and simulates a game with the players until completion. The game is returned. The `event_hook` argument allows the caller to handle state and event updates after each decision.
-
-## Usage
-
-Running `python interactive.py` sets up an interactive game for a `HumanPlayer` against two `RandomPlayer`s.
 
