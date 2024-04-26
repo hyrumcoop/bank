@@ -1,7 +1,7 @@
 from game import BankGame
 from mcts.mcts import compute_mcts_decision
 from player.player import BankPlayer
-from player.reasonable_player import ReasonablePlayer
+from player.random_player import RandomPlayer
 
 class MCTSPlayer(BankPlayer):
     '''A player that uses Monte Carlo Tree Search to make decisions.'''
@@ -15,4 +15,4 @@ class MCTSPlayer(BankPlayer):
         if game.get_current_state().rolls < 3:
             return False # No risk in passing after the first two rolls
 
-        return compute_mcts_decision(game.get_current_state(), self.num_simulations, rollout_player=ReasonablePlayer())
+        return compute_mcts_decision(game.get_current_state(), self.num_simulations, rollout_player=RandomPlayer())
