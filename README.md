@@ -6,6 +6,10 @@
 
 Run `mcts_test.py` to run the Monte-Carlo Tree Search algorithm against 7 other players in 1000 different games. The win/draw rates are reported in the console for each player.
 
+### Tournament Play
+
+Run `python tournament.py` to run the tournament with the players configured in the tournament.py file.
+
 ### Interactive Play
 
 Running `python interactive.py` sets up an interactive game for a `HumanPlayer` against a few computer strategies.
